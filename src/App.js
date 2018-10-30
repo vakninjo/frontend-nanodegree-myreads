@@ -1,5 +1,5 @@
 import React from 'react'
-// import * as BooksAPI from './BooksAPI'
+import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookCase from './components/BookCase'
 
@@ -11,13 +11,57 @@ class BooksApp extends React.Component {
      * users can use the browser's back and forward buttons to navigate between
      * pages, as well as provide a good URL they can bookmark and share.
      */
-    showSearchPage: false
+    showSearchPage: false,
+
+  }
+
+  //After mount update data
+  componentDidMount = () => {
+    if (this.state.newBook) {
+      this.updateAllBooks();
+    }
+  }
+
+  updateAllBooks = () => {
+    //Get books on bookshekves and update state
+    BooksAPI
+      .getAll()
+      .then((list) => {
+        this.setState({
+          books: list,
+          newBook: false
+        })
+      })
+
+  }
+
+  changeShelf = (book, shelf) => {
+    //Call to backend and update shelf for the selected book
+    BooksAPI
+      .update(book, shelf)
+      .then(response =>{
+        //create new list of books
+        let newList = this.state.books.slice(0);
+
+        // look for book in newList
+        const books = newList.filter(listBook => listBook.id === book.id);
+        if (books.length) {
+          books[0].shelf = shelf;
+        } else {
+          newList.push(book);
+        }
+        //update state with newList
+        this.setState({books: newList});
+      })
   }
 
   render() {
     return (
-      <BookCase />
-
+      <BookCase
+        books={this.state.books}
+        onUpdateAllBooks={this.updateAllBooks}
+        onChangeShelf = {this.changeShelf}
+       />
     )
   }
 }
