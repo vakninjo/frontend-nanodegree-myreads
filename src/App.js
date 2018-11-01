@@ -1,25 +1,18 @@
 import React from 'react'
+import {Route} from 'react-router-dom';
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookCase from './components/BookCase'
+import Search from './components/Search'
 
 class BooksApp extends React.Component {
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
     showSearchPage: false,
-
   }
 
   //After mount update data
   componentDidMount = () => {
-    if (this.state.newBook) {
       this.updateAllBooks();
-    }
   }
 
   updateAllBooks = () => {
@@ -28,8 +21,7 @@ class BooksApp extends React.Component {
       .getAll()
       .then((list) => {
         this.setState({
-          books: list,
-          newBook: false
+          books: list
         })
       })
 
@@ -39,8 +31,9 @@ class BooksApp extends React.Component {
     //Call to backend and update shelf for the selected book
     BooksAPI
       .update(book, shelf)
-      .then(response =>{
+      .then((response) =>{
         //create new list of books
+
         let newList = this.state.books.slice(0);
 
         // look for book in newList
@@ -57,11 +50,24 @@ class BooksApp extends React.Component {
 
   render() {
     return (
-      <BookCase
-        books={this.state.books}
-        onUpdateAllBooks={this.updateAllBooks}
-        onChangeShelf = {this.changeShelf}
-       />
+      <div className="app">
+        <Route exact path='/' render = {() => (
+            <BookCase
+              books={this.state.books}
+              onUpdateAllBooks={this.updateAllBooks}
+              onChangeShelf = {this.changeShelf}
+            />
+          )}
+        />
+        <Route path = '/search' render ={() => (
+            <Search
+              allBooks = {this.state.books}
+              onUpdateAllBooks={this.updateAllBooks}
+              onChangeShelf = {this.changeShelf}
+            />
+          )}
+        />
+      </div>
     )
   }
 }
