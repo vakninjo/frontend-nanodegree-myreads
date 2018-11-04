@@ -42,7 +42,17 @@ class Search extends Component {
             console.log(response);
 
           } else if (response.length) {
-            newList = response;
+            newList = response.map((responseBook) =>{
+              for (let book of this.props.allBooks){
+                if (book.id === responseBook.id){
+                  responseBook.shelf = book.shelf;
+                  return responseBook
+                } else {
+                  responseBook.shelf ='none';
+                }
+              }
+              return responseBook;
+            });
           }
 
           this.setState({bookSearchList: newList})
